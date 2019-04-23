@@ -3,4 +3,10 @@
     <item type="layout" name="launch_screen">
         @layout/launch_screen
     </item>
+    <item type="animator" name="launch_screen_animation">
+        @animator/launch_screen_animation
+    </item>
+    <item type="id" name="launch_screen_image">
+        @id/launch_screen_image
+    </item>
 </resources>

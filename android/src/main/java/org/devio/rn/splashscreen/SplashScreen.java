@@ -1,5 +1,9 @@
 package org.devio.rn.splashscreen;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Build;
@@ -16,6 +20,7 @@ import java.lang.ref.WeakReference;
  */
 public class SplashScreen {
     private static Dialog mSplashDialog;
+    private static AnimatorSet mAnimation;
     private static WeakReference<Activity> mActivity;
 
     /**
@@ -32,8 +37,37 @@ public class SplashScreen {
                     mSplashDialog.setContentView(R.layout.launch_screen);
                     mSplashDialog.setCancelable(false);
 
+                    mAnimation = (AnimatorSet) AnimatorInflater
+                            .loadAnimator(activity, R.animator.launch_screen_animation);
+                    mAnimation.setTarget(mSplashDialog.findViewById(R.id.launch_screen_image));
+
+                    // Make animation repeatable
+                    mAnimation.addListener(new AnimatorListenerAdapter() {
+
+                        private boolean mCanceled;
+
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            mCanceled = false;
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+                            mCanceled = true;
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            if (!mCanceled) {
+                                mAnimation.start();
+                            }
+                        }
+
+                    });
+
                     if (!mSplashDialog.isShowing()) {
                         mSplashDialog.show();
+                        mAnimation.start();
                     }
                 }
             }
@@ -82,6 +116,7 @@ public class SplashScreen {
                     }
 
                     if (!_activity.isFinishing() && !isDestroyed) {
+                        mAnimation.cancel();
                         mSplashDialog.dismiss();
                     }
                     mSplashDialog = null;
